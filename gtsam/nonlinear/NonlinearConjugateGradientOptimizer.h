@@ -23,6 +23,13 @@
 
 namespace gtsam {
 
+class GTSAM_EXPORT NonlinearConjugateGradientParams : public NonlinearOptimizerParams {
+ public:
+  bool gradientDescent;  // Use gradient descent instead of conjugate gradient
+
+  NonlinearConjugateGradientParams() : gradientDescent(false) {}
+};
+
 /**  An implementation of the nonlinear CG method using the template below */
 class GTSAM_EXPORT NonlinearConjugateGradientOptimizer : public NonlinearOptimizer {
 
@@ -31,7 +38,7 @@ class GTSAM_EXPORT NonlinearConjugateGradientOptimizer : public NonlinearOptimiz
   public:
     typedef Values State;
     typedef VectorValues Gradient;
-    typedef NonlinearOptimizerParams Parameters;
+    typedef NonlinearConjugateGradientParams Parameters;
 
   protected:
     const NonlinearFactorGraph &graph_;
@@ -49,13 +56,13 @@ class GTSAM_EXPORT NonlinearConjugateGradientOptimizer : public NonlinearOptimiz
 public:
 
   typedef NonlinearOptimizer Base;
-  typedef NonlinearOptimizerParams Parameters;
+  typedef NonlinearConjugateGradientParams Parameters;
   typedef std::shared_ptr<NonlinearConjugateGradientOptimizer> shared_ptr;
 
 protected:
   Parameters params_;
 
-  const NonlinearOptimizerParams& _params() const override {
+  const NonlinearConjugateGradientParams& _params() const override {
     return params_;
   }
 

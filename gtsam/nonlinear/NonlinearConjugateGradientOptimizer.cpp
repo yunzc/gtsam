@@ -75,7 +75,7 @@ const Values& NonlinearConjugateGradientOptimizer::optimize() {
   // Optimize until convergence
   System system(graph_);
   const auto [newValues, iterations] =
-      nonlinearConjugateGradient(system, state_->values, params_, false);
+      nonlinearConjugateGradient(system, state_->values, params_, params_.gradientDescent);
   state_.reset(new State(std::move(newValues), graph_.error(newValues), iterations));
   return state_->values;
 }
