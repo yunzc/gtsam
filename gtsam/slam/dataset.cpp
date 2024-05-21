@@ -290,6 +290,14 @@ static SharedNoiseModel createNoiseModel(
     return noiseModel::Robust::Create(
         noiseModel::mEstimator::Tukey::Create(4.6851), model);
     break;
+  case KernelFunctionTypeGM:
+    return noiseModel::Robust::Create(
+        noiseModel::mEstimator::GemanMcClure::Create(1.0), model);
+    break;
+  case KernelFunctionTypeTLS:
+    return noiseModel::Robust::Create(
+        noiseModel::mEstimator::TruncatedL2::Create(1.0), model);
+    break;
   default:
     throw std::invalid_argument("load2D: invalid kernel function type");
   }
