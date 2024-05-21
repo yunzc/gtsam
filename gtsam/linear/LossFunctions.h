@@ -171,6 +171,41 @@ class GTSAM_EXPORT Null : public Base {
 #endif
 };
 
+/** The "TruncatedL2" robust error model.
+ *
+ *  This model has a scalar parameter "k".
+ *
+ * - Loss       \rho(x)          = 0.5 x²  if |x|<k, 0.5 k² + k|x-k|  otherwise
+ * - Derivative \phi(x)          = x       if |x|<k, 0                otherwise
+ * - Weight     w(x)             = \phi(x)/x = 1 \f$
+ */
+class GTSAM_EXPORT TruncatedL2 : public Base {
+ protected:
+  double k_;
+
+ public:
+  typedef std::shared_ptr<TruncatedL2> shared_ptr;
+
+  TruncatedL2(double k = 1.345, const ReweightScheme reweight = Block);
+  double weight(double distance) const override;
+  double loss(double distance) const override;
+  void print(const std::string& s) const override;
+  bool equals(const Base& expected, double tol = 1e-8) const override;
+  static shared_ptr Create(double k, const ReweightScheme reweight = Block);
+  double modelParameter() const { return k_; }
+
+ private:
+#ifdef GTSAM_ENABLE_BOOST_SERIALIZATION
+  /** Serialization function */
+  friend class boost::serialization::access;
+  template <class ARCHIVE>
+  void serialize(ARCHIVE& ar, const unsigned int /*version*/) {
+    ar& BOOST_SERIALIZATION_BASE_OBJECT_NVP(Base);
+    ar& BOOST_SERIALIZATION_NVP(k_);
+  }
+#endif
+};
+
 /** Implementation of the "Fair" robust error model (Zhang97ivc)
  *
  *  This model has a scalar parameter "c".

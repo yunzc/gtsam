@@ -134,6 +134,44 @@ Null::shared_ptr Null::Create()
 { return shared_ptr(new Null()); }
 
 /* ************************************************************************* */
+// Truncated L2
+/* ************************************************************************* */
+
+TruncatedL2::TruncatedL2(double k, const ReweightScheme reweight) : Base(reweight), k_(k) {
+  if (k_ <= 0) {
+    throw runtime_error("mEstimator Huber takes only positive double in constructor.");
+  }
+}
+
+double TruncatedL2::weight(double distance) const {
+  const double absError = std::abs(distance);
+  return 1.0;
+}
+
+double TruncatedL2::loss(double distance) const {
+  const double absError = std::abs(distance);
+  if (absError <= k_) {  // |x| <= k
+    return distance * distance / 2;
+  } else {  // |x| > k
+    return k_ * k_ / 2;
+  }
+}
+
+void TruncatedL2::print(const std::string& s = "") const {
+  cout << s << "truncated L2 (" << k_ << ")" << endl;
+}
+
+bool TruncatedL2::equals(const Base& expected, double tol) const {
+  const TruncatedL2* p = dynamic_cast<const TruncatedL2*>(&expected);
+  if (p == nullptr) return false;
+  return std::abs(k_ - p->k_) < tol;
+}
+
+TruncatedL2::shared_ptr TruncatedL2::Create(double c, const ReweightScheme reweight) {
+  return shared_ptr(new TruncatedL2(c, reweight));
+}
+
+/* ************************************************************************* */
 // Fair
 /* ************************************************************************* */
 
