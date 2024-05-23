@@ -64,20 +64,11 @@ NonlinearConjugateGradientOptimizer::System::State NonlinearConjugateGradientOpt
 
 GaussianFactorGraph::shared_ptr NonlinearConjugateGradientOptimizer::iterate() {
   const auto [newValues, dummy] = nonlinearConjugateGradient<System, Values>(
-      System(graph_), state_->values, params_, true /* single iteration */);
+      System(graph_), state_->values, params_, params_.gradientDescent /* single iteration */);
   state_.reset(new State(newValues, graph_.error(newValues), state_->iterations + 1));
 
   // NOTE(frank): We don't linearize this system, so we must return null here.
   return nullptr;
-}
-
-const Values& NonlinearConjugateGradientOptimizer::optimize() {
-  // Optimize until convergence
-  System system(graph_);
-  const auto [newValues, iterations] =
-      nonlinearConjugateGradient(system, state_->values, params_, params_.gradientDescent);
-  state_.reset(new State(std::move(newValues), graph_.error(newValues), iterations));
-  return state_->values;
 }
 
 } /* namespace gtsam */
