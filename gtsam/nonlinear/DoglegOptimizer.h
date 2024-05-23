@@ -43,6 +43,9 @@ public:
   DoglegParams() :
     deltaInitial(1.0), verbosityDL(SILENT) {}
 
+  DoglegParams(const NonlinearOptimizerParams& params)
+      : NonlinearOptimizerParams(params), deltaInitial(1.0), verbosityDL(SILENT) {}
+
   ~DoglegParams() override {}
 
   void print(const std::string& str = "") const override {

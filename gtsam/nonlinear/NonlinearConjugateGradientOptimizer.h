@@ -28,6 +28,8 @@ class GTSAM_EXPORT NonlinearConjugateGradientParams : public NonlinearOptimizerP
   bool gradientDescent;  // Use gradient descent instead of conjugate gradient
 
   NonlinearConjugateGradientParams() : gradientDescent(false) {}
+  NonlinearConjugateGradientParams(const NonlinearOptimizerParams& params)
+      : NonlinearOptimizerParams(params), gradientDescent(false) {}
 };
 
 /**  An implementation of the nonlinear CG method using the template below */

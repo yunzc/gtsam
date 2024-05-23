@@ -66,11 +66,17 @@ public:
     SetLegacyDefaults(this);
   }
 
-  static void SetLegacyDefaults(LevenbergMarquardtParams* p) {
-    // Relevant NonlinearOptimizerParams:
-    p->maxIterations = 100;
-    p->relativeErrorTol = 1e-5;
-    p->absoluteErrorTol = 1e-5;
+  LevenbergMarquardtParams(const NonlinearOptimizerParams& params) {
+    SetLegacyDefaults(this, true);
+  }
+
+  static void SetLegacyDefaults(LevenbergMarquardtParams* p, bool LM_specific_only = false) {
+    if (!LM_specific_only) {
+      // Relevant NonlinearOptimizerParams:
+      p->maxIterations = 100;
+      p->relativeErrorTol = 1e-5;
+      p->absoluteErrorTol = 1e-5;
+    }
     // LM-specific:
     p->lambdaInitial = 1e-5;
     p->lambdaFactor = 10.0;
@@ -82,11 +88,13 @@ public:
   }
 
   // these do seem to work better for SFM
-  static void SetCeresDefaults(LevenbergMarquardtParams* p) {
-    // Relevant NonlinearOptimizerParams:
-    p->maxIterations = 50;
-    p->absoluteErrorTol = 0;     // No corresponding option in CERES
-    p->relativeErrorTol = 1e-6;  // This is function_tolerance
+  static void SetCeresDefaults(LevenbergMarquardtParams* p, bool LM_specific_only = false) {
+    if (!LM_specific_only) {
+      // Relevant NonlinearOptimizerParams:
+      p->maxIterations = 50;
+      p->absoluteErrorTol = 0;     // No corresponding option in CERES
+      p->relativeErrorTol = 1e-6;  // This is function_tolerance
+    }
     // LM-specific:
     p->lambdaUpperBound = 1e32;
     p->lambdaLowerBound = 1e-16;

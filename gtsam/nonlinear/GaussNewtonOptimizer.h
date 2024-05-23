@@ -30,6 +30,8 @@ class GaussNewtonOptimizer;
 class GTSAM_EXPORT GaussNewtonParams : public NonlinearOptimizerParams {
 public:
   using OptimizerType = GaussNewtonOptimizer;
+  GaussNewtonParams() {}
+  GaussNewtonParams(const NonlinearOptimizerParams& params) : NonlinearOptimizerParams(params) {}
 };
 
 /**
