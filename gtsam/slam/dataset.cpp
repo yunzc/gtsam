@@ -505,7 +505,7 @@ template <> struct ParseMeasurement<BearingRange2D> {
         (Vector(2) << bearing_std, range_std).finished());
 
     return BinaryMeasurement<BearingRange2D>(
-        id1, L(id2), BearingRange2D(bearing, range), measurementNoise);
+        id1, id2, BearingRange2D(bearing, range), measurementNoise);
   }
 };
 
@@ -523,7 +523,7 @@ GraphAndValues load2D(const std::string &filename, SharedNoiseModel model,
         initial->insert(indexedPose->first, indexedPose->second);
     } else if (auto indexedLandmark = parseVertexLandmark(is, tag)) {
       if (!maxIndex || indexedLandmark->first <= maxIndex)
-        initial->insert(L(indexedLandmark->first), indexedLandmark->second);
+        initial->insert(indexedLandmark->first, indexedLandmark->second);
     }
     return 0;
   };
@@ -940,7 +940,7 @@ GraphAndValues load3D(const std::string &filename) {
     if (auto indexedPose = parseVertexPose3(is, tag)) {
       initial->insert(indexedPose->first, indexedPose->second);
     } else if (auto indexedLandmark = parseVertexPoint3(is, tag)) {
-      initial->insert(L(indexedLandmark->first), indexedLandmark->second);
+      initial->insert(indexedLandmark->first, indexedLandmark->second);
     } else if (auto factor = parseFactor(is, tag)) {
       graph->push_back(*factor);
     }
