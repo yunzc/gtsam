@@ -145,7 +145,11 @@ TruncatedL2::TruncatedL2(double k, const ReweightScheme reweight) : Base(reweigh
 
 double TruncatedL2::weight(double distance) const {
   const double absError = std::abs(distance);
-  return 1.0;
+  if (absError <= k_) {  // |x| <= k
+    return 1.0;
+  } else {  // |x| > k
+    return 0.0;
+  }
 }
 
 double TruncatedL2::loss(double distance) const {

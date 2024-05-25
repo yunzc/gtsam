@@ -186,7 +186,7 @@ class GTSAM_EXPORT TruncatedL2 : public Base {
  public:
   typedef std::shared_ptr<TruncatedL2> shared_ptr;
 
-  TruncatedL2(double k = 1.345, const ReweightScheme reweight = Block);
+  TruncatedL2(double k = 1.0, const ReweightScheme reweight = Block);
   double weight(double distance) const override;
   double loss(double distance) const override;
   void print(const std::string& s) const override;
