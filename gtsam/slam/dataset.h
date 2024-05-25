@@ -210,7 +210,8 @@ GTSAM_EXPORT void writeG2o(const NonlinearFactorGraph& graph,
     const Values& estimate, const std::string& filename);
 
 /// Load TORO 3D Graph
-GTSAM_EXPORT GraphAndValues load3D(const std::string& filename);
+GTSAM_EXPORT GraphAndValues load3D(const std::string& filename,
+                                   KernelFunctionType kernelFunctionType = KernelFunctionTypeNONE);
 
 // Wrapper-friendly versions of parseFactors<Pose2> and parseFactors<Pose2>
 using BetweenFactorPose2s = std::vector<BetweenFactor<Pose2>::shared_ptr>;

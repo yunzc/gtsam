@@ -629,7 +629,7 @@ void save2D(const NonlinearFactorGraph &graph, const Values &config,
 GraphAndValues readG2o(const std::string &g2oFile, const bool is3D,
                        KernelFunctionType kernelFunctionType) {
   if (is3D) {
-    return load3D(g2oFile);
+    return load3D(g2oFile, kernelFunctionType);
   } else {
     // just call load2D
     size_t maxIndex = 0;
@@ -814,12 +814,36 @@ std::istream &operator>>(std::istream &is, Matrix6 &m) {
   return is;
 }
 
+SharedNoiseModel createRobustNoiseModel(SharedNoiseModel model,
+                                        KernelFunctionType kernelFunctionType) {
+  switch (kernelFunctionType) {
+    case KernelFunctionTypeNONE:
+      return model;
+      break;
+    case KernelFunctionTypeHUBER:
+      return noiseModel::Robust::Create(noiseModel::mEstimator::Huber::Create(1.345), model);
+      break;
+    case KernelFunctionTypeTUKEY:
+      return noiseModel::Robust::Create(noiseModel::mEstimator::Tukey::Create(4.6851), model);
+      break;
+    case KernelFunctionTypeGM:
+      return noiseModel::Robust::Create(noiseModel::mEstimator::GemanMcClure::Create(1.0), model);
+      break;
+    case KernelFunctionTypeTLS:
+      return noiseModel::Robust::Create(noiseModel::mEstimator::TruncatedL2::Create(1.0), model);
+      break;
+    default:
+      throw std::invalid_argument("load2D: invalid kernel function type");
+  }
+}
+
 /* ************************************************************************* */
 // Pose3 measurement parser
 template <> struct ParseMeasurement<Pose3> {
   // The arguments
   std::shared_ptr<Sampler> sampler;
   size_t maxIndex;
+  KernelFunctionType kernelFunctionType;
 
   // The actual parser
   std::optional<BinaryMeasurement<Pose3>> operator()(std::istream &is,
@@ -843,8 +867,10 @@ template <> struct ParseMeasurement<Pose3> {
       if (sampler)
         T12 = T12.retract(sampler->sample());
 
-      return BinaryMeasurement<Pose3>(id1, id2, T12,
-                                      noiseModel::Gaussian::Information(m));
+      auto model = noiseModel::Gaussian::Information(m);
+      auto robust_model = createRobustNoiseModel(model, kernelFunctionType);
+
+      return BinaryMeasurement<Pose3>(id1, id2, T12, robust_model);
     } else if (tag == "EDGE_SE3:QUAT") {
       double x, y, z;
       Quaternion q;
@@ -861,10 +887,11 @@ template <> struct ParseMeasurement<Pose3> {
       mgtsam.block<3, 3>(3, 3) = m.block<3, 3>(0, 0); // info translation
       mgtsam.block<3, 3>(3, 0) = m.block<3, 3>(0, 3); // off diagonal g2o t,R -> GTSAM R,t
       mgtsam.block<3, 3>(0, 3) = m.block<3, 3>(3, 0); // off diagonal g2o R,t -> GTSAM t,R
-      SharedNoiseModel model = noiseModel::Gaussian::Information(mgtsam);
+      
+      auto model = noiseModel::Gaussian::Information(mgtsam);
+      auto robust_model = createRobustNoiseModel(model, kernelFunctionType);
 
-      return BinaryMeasurement<Pose3>(
-          id1, id2, T12, noiseModel::Gaussian::Information(mgtsam));
+      return BinaryMeasurement<Pose3>(id1, id2, T12, robust_model);
     } else
       return std::nullopt;
   }
@@ -927,12 +954,12 @@ parseFactors<Pose3>(const std::string &filename,
 }
 
 /* ************************************************************************* */
-GraphAndValues load3D(const std::string &filename) {
+GraphAndValues load3D(const std::string &filename, KernelFunctionType kernelFunctionType) {
   auto graph = std::make_shared<NonlinearFactorGraph>();
   auto initial = std::make_shared<Values>();
 
   // Instantiate factor parser. maxIndex is always zero for load3D.
-  ParseFactor<Pose3> parseFactor({nullptr, 0});
+  ParseFactor<Pose3> parseFactor({nullptr, 0, kernelFunctionType});
 
   // Single pass for variables and factors. Unlike 2D version, does *not* insert
   // variables into `initial` if referenced but not present.
