@@ -52,6 +52,7 @@ class GncOptimizer {
   GncParameters params_; ///< GNC parameters.
   Vector weights_;  ///< Weights associated to each factor in GNC (this could be a local variable in optimize, but it is useful to make it accessible from outside).
   Vector barcSq_;  ///< Inlier thresholds. A factor is considered an inlier if factor.error() < barcSq_[i] (where i is the position of the factor in the factor graph. Note that factor.error() whitens by the covariance.
+  std::vector<double> error_log_;
 
  public:
   /// Constructor.
@@ -163,6 +164,9 @@ class GncOptimizer {
   /// Get the inlier threshold.
   const Vector& getInlierCostThresholds() const {return barcSq_;}
 
+  //// return the error log
+  const std::vector<double>& errorLog() const { return error_log_; }
+
   /// Equals.
   bool equals(const GncOptimizer& other, double tol = 1e-9) const {
     return nfg_.equals(other.getFactors())
@@ -239,6 +243,7 @@ class GncOptimizer {
 
       // stopping condition
       cost = graph_iter.error(result);
+      error_log_.push_back(cost);
       if (checkConvergence(mu, weights_, cost, prev_cost)) {
         break;
       }

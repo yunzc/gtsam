@@ -79,7 +79,9 @@ protected:
 
   std::unique_ptr<internal::NonlinearOptimizerState> state_; ///< PIMPL'd state
 
-public:
+  std::vector<double> error_log_;
+
+ public:
   /** A shared pointer to this class */
   using shared_ptr = std::shared_ptr<const NonlinearOptimizer>;
 
@@ -116,6 +118,9 @@ public:
 
   /// return the graph with nonlinear factors
   const NonlinearFactorGraph &graph() const { return graph_; }
+
+  // return the error log
+  const std::vector<double>& errorLog() const { return error_log_; }
 
   /// @}
 

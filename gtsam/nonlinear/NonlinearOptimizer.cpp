@@ -62,6 +62,7 @@ const Values& NonlinearOptimizer::values() const {
 void NonlinearOptimizer::defaultOptimize() {
   const NonlinearOptimizerParams& params = _params();
   double currentError = error();
+  error_log_.push_back(currentError);
 
   // check if we're already close enough
   if (currentError <= params.errorTol) {
@@ -94,6 +95,7 @@ void NonlinearOptimizer::defaultOptimize() {
 
     // Update newError for either printouts or conditional-end checks:
     newError = error();
+    error_log_.push_back(newError);
 
     // User hook:
     if (params.iterationHook)
