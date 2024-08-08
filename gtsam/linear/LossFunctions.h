@@ -579,6 +579,42 @@ class GTSAM_EXPORT AsymmetricCauchy : public Base {
 #endif
 };
 
+/** MaxConsensus implements a binary cost, with 0 when error is less than
+ *  some threshold k and 1 otherwise.
+ *
+ *  This model has a scalar parameter "k".
+ *
+ * - Loss       \f$ \rho(x) = 0 \f$ if |x|<k,    1 otherwise
+ * - Derivative \f$ \phi(x) = 1 \f$ if x = k,  0 otherwise
+ * - Weight     \f$ w(x) = \phi(x)/x = 1/k \f$ if x = k,  0 otherwise
+ */
+class GTSAM_EXPORT MaxConsensus : public Base {
+ protected:
+  double k_;
+
+ public:
+  typedef std::shared_ptr<MaxConsensus> shared_ptr;
+
+  MaxConsensus(double k = 1.0, const ReweightScheme reweight = Block);
+  double weight(double distance) const override;
+  double loss(double distance) const override;
+  void print(const std::string &s) const override;
+  bool equals(const Base &expected, double tol = 1e-8) const override;
+  static shared_ptr Create(double k, const ReweightScheme reweight = Block);
+  double modelParameter() const { return k_; }
+
+ private:
+#ifdef GTSAM_ENABLE_BOOST_SERIALIZATION
+  /** Serialization function */
+  friend class boost::serialization::access;
+  template <class ARCHIVE>
+  void serialize(ARCHIVE &ar, const unsigned int /*version*/) {
+    ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(Base);
+    ar &BOOST_SERIALIZATION_NVP(k_);
+  }
+#endif
+};
+
 // Type alias for the custom loss and weight functions
 using CustomLossFunction = std::function<double(double)>;
 using CustomWeightFunction = std::function<double(double)>;

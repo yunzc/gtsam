@@ -559,6 +559,42 @@ AsymmetricCauchy::shared_ptr AsymmetricCauchy::Create(double k, const ReweightSc
   return shared_ptr(new AsymmetricCauchy(k, reweight));
 }
 
+/* ************************************************************************* */
+// Max Consensus
+/* ************************************************************************* */
+
+MaxConsensus::MaxConsensus(double k, const ReweightScheme reweight)
+ : Base(reweight), k_(k) {
+  if (k_ <= 0) {
+    throw runtime_error("mEstimator MaxConsensus takes only positive double in constructor.");
+  }
+}
+
+double MaxConsensus::weight(double distance) const {
+  if (distance == k_) {
+    return 1;
+  }
+  return 0;
+}
+
+double MaxConsensus::loss(double distance) const {
+  const double abs_error = std::abs(distance);
+  return (abs_error < k_) ? 0.0 : 1.0;
+}
+
+void MaxConsensus::print(const std::string &s="") const {
+  std::cout << s << ": MaxConsensus (" << k_ << ")" << std::endl;
+}
+
+bool MaxConsensus::equals(const Base &expected, double tol) const {
+  const MaxConsensus* p = dynamic_cast<const MaxConsensus*>(&expected);
+  if (p == nullptr) return false;
+  return std::abs(k_ - p->k_) < tol;
+}
+
+MaxConsensus::shared_ptr MaxConsensus::Create(double k, const ReweightScheme reweight) {
+  return shared_ptr(new MaxConsensus(k, reweight));
+}
 
 /* ************************************************************************* */
 // Custom
