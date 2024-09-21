@@ -66,7 +66,8 @@ public:
     SetLegacyDefaults(this);
   }
 
-  LevenbergMarquardtParams(const NonlinearOptimizerParams& params) {
+  LevenbergMarquardtParams(const NonlinearOptimizerParams& params)
+      : NonlinearOptimizerParams(params) {
     SetLegacyDefaults(this, true);
   }
 
